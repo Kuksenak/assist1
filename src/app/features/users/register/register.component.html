@@ -1,0 +1,16 @@
+<div class="wrapper">
+    <app-card>
+        <form (ngSubmit)="register()" class="container" #registerForm="ngForm">
+            <input [(ngModel)]="email" name="email" placeholder="Email" />
+            <input [(ngModel)]="firstName" name="firstName" placeholder="First name" />
+            <input [(ngModel)]="lastName" name="LastName" placeholder="Last name" />
+            <input [(ngModel)]="password" name="password" placeholder="Password" type="password" />
+            <input [(ngModel)]="confirmPassword" name="confirm password" placeholder="Confirm password"
+                type="password" />
+            <button type="submit" [disabled]="password != confirmPassword">Register</button>
+            @if (message) {
+            <p style="color: red;">{{ message }}</p>
+            }
+        </form>
+    </app-card>
+</div>

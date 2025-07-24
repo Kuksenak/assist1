@@ -1,0 +1,206 @@
+@use "sass:color"; // Импортируем модуль Sass для работы с цветами
+
+/* --- Переменные --- */
+// Цвета для современного, контрастного минимализма
+$primary-action: #6366f1; // Яркий, современный акцентный цвет (фиолетовый/индиго)
+$background-light-page: #f9fafb; // Очень светлый фон страницы
+$background-dark-form: #ffffff; // Фон самой формы/модала
+$text-primary: #111827; // Основной темный текст
+$text-secondary: #4b5563; // Второстепенный текст, лейблы
+$text-light: #6c757d; // Светлый текст / плейсхолдеры для плейсхолдеров
+$border-subtle: #e5e7eb; // Очень легкая, почти невидимая граница
+$error-color: #dc3545; // Красный для ошибок
+
+// Шрифты: Системные шрифты для максимальной производительности и нативности
+$font-system: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+
+/* --- Миксины --- */
+// Легкая, современная тень
+@mixin soft-shadow($level: 1) {
+    @if $level ==1 {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); // Мягкая, ненавязчивая тень
+    }
+
+    @else if $level ==2 {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); // Чуть более выраженная тень
+    }
+
+    @else {
+        box-shadow: none;
+    }
+}
+
+/* --- Общие стили для контейнера страницы (не форма) --- */
+// Эти стили можно применить к <body> или к родительскому div в app.component.html
+// Пример: <div class="app-overall-container"><app-login></app-login></div>
+.app-overall-container {
+    background-color: $background-light-page;
+    font-family: $font-system;
+    display: flex;
+    justify-content: center; // Центрирование формы по горизонтали
+    align-items: flex-start; // Форма будет вверху, а не по центру экрана
+    padding: 60px 20px; // Отступ сверху и по бокам
+    box-sizing: border-box;
+    min-height: 100vh; // Занимает всю высоту, чтобы фон страницы был корректным
+}
+
+/* --- Контейнер логина (самой формы) --- */
+.login-container {
+    background-color: $background-dark-form;
+    border-radius: 12px; // Более выраженные скругления для современного вида
+    padding: 40px; // Щедро внутренние отступы
+    width: 100%;
+    max-width: 420px; // Оптимальная ширина
+    text-align: center;
+    box-sizing: border-box;
+    margin: 0 auto; // Центрируем форму внутри родительского контейнера
+
+    // Убираем явные тени "mat-elevation", если они не нужны.
+    // Если класс mat-elevation-z2 всё ещё нужен для какой-то абстракции Angular Material,
+    // то можно переопределить его вот так:
+    &.mat-elevation-z2 {
+        @include soft-shadow(1); // Используем наш миксин для тени
+    }
+}
+
+.login-title {
+    font-family: $font-system;
+    font-size: 2.2em; // Крупный и заметный
+    font-weight: 700; // Очень жирный
+    color: $text-primary;
+    margin-bottom: 35px;
+    letter-spacing: -0.8px; // Уплотняем буквы
+    text-align: center;
+}
+
+/* --- Элементы формы --- */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; // Пространство между полями
+    margin-bottom: 30px; // Отступ перед кнопкой/футером
+}
+
+.form-field {
+    text-align: left;
+}
+
+.input-label {
+    display: block;
+    font-family: $font-system;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: $text-secondary;
+    margin-bottom: 8px;
+}
+
+.text-input {
+    width: 100%;
+    padding: 14px 16px; // Больше padding для лучшего UX
+    border: 1px solid $border-subtle; // Очень тонкая и светлая граница
+    border-radius: 8px; // Скругленные углы
+    font-size: 1.05em; // Чуть больше шрифт для инпутов
+    color: $text-primary;
+    background-color: $background-light-page; // Фон инпута светлее фона формы
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    box-sizing: border-box;
+    font-family: $font-system;
+    -webkit-appearance: none;
+    appearance: none;
+
+    &:focus {
+        outline: none;
+        border-color: $primary-action;
+        box-shadow: 0 0 0 2px color.adjust($primary-action, $alpha: -0.7); // Тонкий акцентный glow
+        background-color: $background-dark-form; // Фон становится белым при фокусе
+    }
+
+    &::placeholder {
+        color: $text-light; // <-- Исправленная переменная
+        opacity: 0.8;
+    }
+
+    &.is-invalid {
+        border-color: $error-color;
+        box-shadow: 0 0 0 2px color.adjust($error-color, $alpha: -0.7);
+    }
+}
+
+.validation-error {
+    color: $error-color;
+    font-size: 0.8em;
+    margin-top: 6px;
+    font-weight: 500; // Чуть жирнее
+}
+
+/* --- Кнопки --- */
+.login-button {
+    padding: 14px 24px; // Больше padding
+    border-radius: 8px; // Скругленные углы
+    cursor: pointer;
+    font-size: 1.05em;
+    font-weight: 600;
+    letter-spacing: 0.5px; // Немного увеличенный интервал для кнопки
+    border: none;
+    background-color: $primary-action;
+    color: $background-dark-form; // Белый текст
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    width: 100%; // Кнопка на всю ширину формы
+
+    &.mat-elevation-z1 {
+        // Если этот класс всё ещё используется, его можно переопределить
+        @include soft-shadow(1);
+    }
+
+    &:hover {
+        background-color: color.adjust($primary-action, $lightness: -5%);
+        transform: translateY(-1px); // Легкий подъем
+        @include soft-shadow(2); // Тень чуть сильнее
+    }
+
+    &:active {
+        background-color: color.adjust($primary-action, $lightness: -10%);
+        transform: translateY(0);
+        box-shadow: none; // Убираем тень при нажатии для "вдавленного" эффекта
+    }
+
+    &:disabled {
+        background-color: color.adjust($primary-action, $lightness: 30%, $alpha: -0.3); // Светлее и прозрачнее
+        color: color.adjust($background-dark-form, $alpha: -0.3);
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+    }
+}
+
+/* --- Ссылки в футере --- */
+.forgot-password {
+    margin-top: 30px; // Больший отступ
+    padding-top: 25px; // Больше padding
+    border-top: 1px solid $border-subtle; // Тонкий разделитель
+    text-align: center;
+
+    .forgot-password-link {
+        color: $primary-action;
+        text-decoration: none;
+        font-size: 0.9em;
+        font-weight: 600; // Более жирный
+        transition: color 0.2s ease, text-decoration 0.2s ease;
+
+        &:hover {
+            text-decoration: underline;
+            color: color.adjust($primary-action, $lightness: -10%);
+        }
+    }
+}
+
+.app-overall-container {
+    background-color: #f9fafb; // Очень светлый фон страницы
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 60px 20px;
+    box-sizing: border-box;
+    min-height: 100vh;
+}

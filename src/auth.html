@@ -1,0 +1,331 @@
+<!-- public/index.html (или index.html в корне вашего Angular проекта) -->
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="utf-8">
+    <title>Angular Firebase Auth</title>
+    <base href="/">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <!-- Tailwind CSS CDN для стилей -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Пользовательские стили для шрифта Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <app-root></app-root>
+</body>
+
+</html>
+
+<!-- ВНИМАНИЕ: Следующий блок <script> имитирует структуру Angular.
+     В РЕАЛЬНОМ Angular-проекте эти части будут находиться в отдельных файлах (.ts, .html)
+     и использовать фреймворк Angular для инъекции зависимостей и жизненного цикла компонентов.
+     Этот подход здесь используется только для того, чтобы приложение было запускаемым в данной среде.
+-->
+<script type="module">
+    // =========================================================================
+    // 1. Инициализация Firebase SDK и Глобальные Переменные (аналог main.ts/environment.ts)
+    // =========================================================================
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
+    import { getAuth, signInAnonymously, signInWithCustomToken, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js';
+    import { getFirestore } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js';
+
+    // Глобальные переменные, предоставляемые средой Canvas.
+    // В реальном Angular-приложении эти конфигурации должны быть в вашем `environment.ts` файле.
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        apiKey: "AIzaSyBXyidU2bIvIjVDbOS2JKS-I_xfyWoMbQE",
+        authDomain: "assist1-bbb00.firebaseapp.com",
+        projectId: "assist1-bbb00",
+        storageBucket: "assist1-bbb00.firebasestorage.app",
+        messagingSenderId: "493670469084",
+        appId: "1:493670469084:web:274a93cf8e20d879abd319"
+    };
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Инициализируем Firebase App ПЕРВЫМ. Это создает экземпляр приложения Firebase по умолчанию.
+    // В Angular это делается через provideFirebaseApp( () => initializeApp(environment.firebaseConfig) )
+    const app = initializeApp(firebaseConfig);
+    console.log(app);
+
+    // Теперь, когда приложение инициализировано, мы можем получить доступ к его сервисам.
+    // В Angular это делается через provideAuth(() => getAuth()) и provideFirestore(() => getFirestore())
+    const auth = getAuth(app);
+    console.log(auth);
+    const db = getFirestore(app);
+
+    // =========================================================================
+    // 2. Mock Angular AuthService (аналог src/app/auth.service.ts)
+    //    Отвечает за логику взаимодействия с Firebase Auth
+    // =========================================================================
+    class AuthService {
+        authInstance = auth; // Используем инициализированный выше экземпляр auth
+        dbInstance = db;     // Используем инициализированный выше экземпляр db
+        currentUser = null;
+        currentUserId = null;
+        message = '';
+        isLoading = true;
+
+        constructor() {
+            this.setupAuthListener();
+            this.signInWithCanvasToken();
+        }
+
+        setupAuthListener() {
+            onAuthStateChanged(this.authInstance, async (user) => {
+                if (user) {
+                    this.currentUser = user;
+                    this.currentUserId = user.uid;
+                    this.message = `Вы вошли как: ${user.email || 'Анонимный пользователь'}`;
+                } else {
+                    this.currentUser = null;
+                    this.currentUserId = null;
+                    this.message = 'Вы не вошли в систему.';
+                    // Попытка анонимного входа, если токен не предоставлен и пользователь не авторизован
+                    if (!initialAuthToken) {
+                        try {
+                            await signInAnonymously(this.authInstance);
+                        } catch (error) {
+                            console.error("Ошибка анонимного входа:", error);
+                            this.message = `Ошибка анонимного входа: ${error.message}`;
+                        }
+                    }
+                }
+                this.isLoading = false;
+            });
+        }
+
+        async signInWithCanvasToken() {
+            if (initialAuthToken && this.authInstance) {
+                try {
+                    await signInWithCustomToken(this.authInstance, initialAuthToken);
+                } catch (error) {
+                    console.error("Ошибка входа с пользовательским токеном:", error);
+                    this.message = `Ошибка входа с токеном: ${error.message}`;
+                }
+            }
+        }
+
+        async signUp(email, password) {
+            this.message = '';
+            try {
+                this.isLoading = true;
+                await createUserWithEmailAndPassword(this.authInstance, email, password);
+                this.message = 'Регистрация успешна! Теперь вы можете войти.';
+                return true;
+            } catch (error) {
+                console.error('Ошибка регистрации:', error.message);
+                this.message = `Ошибка регистрации: ${error.message}`;
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        }
+
+        async signIn(email, password) {
+            this.message = '';
+            try {
+                this.isLoading = true;
+                await signInWithEmailAndPassword(this.authInstance, email, password);
+                this.message = 'Вход выполнен успешно!';
+                return true;
+            } catch (error) {
+                console.error('Ошибка входа:', error.message);
+                this.message = `Ошибка входа: ${error.message}`;
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        }
+
+        async signOut() {
+            this.message = '';
+            try {
+                this.isLoading = true;
+                await signOut(this.authInstance);
+                this.message = 'Вы вышли из системы.';
+                return true;
+            } catch (error) {
+                console.error('Ошибка выхода:', error.message);
+                this.message = `Ошибка выхода: ${error.message}`;
+                return false;
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }
+
+    // =========================================================================
+    // 3. Mock Angular AppComponent (аналог src/app/app.component.ts и .html)
+    //    Отвечает за рендеринг UI и взаимодействие с AuthService
+    // =========================================================================
+    class AppComponent extends HTMLElement {
+        authService = new AuthService(); // Создаем экземпляр AuthService
+        email = '';
+        password = '';
+
+        constructor() {
+            super();
+            this.attachShadow({ mode: 'open' }); // Используем Shadow DOM для изоляции стилей
+
+            // Привязка методов к контексту компонента
+            this.handleEmailChange = this.handleEmailChange.bind(this);
+            this.handlePasswordChange = this.handlePasswordChange.bind(this);
+            this.handleSignUp = this.handleSignUp.bind(this);
+            this.handleSignIn = this.handleSignIn.bind(this);
+            this.handleSignOut = this.handleSignOut.bind(this);
+
+            // Initial render
+            this.render();
+
+            // Listen for changes in authService
+            // В реальном Angular это было бы через Observables (e.g., this.authService.user$.subscribe(...))
+            // и Angular автоматически обновлял бы представление при изменении данных.
+            // Здесь мы используем setInterval для имитации реактивности.
+            setInterval(() => {
+                this.render(); // Re-render to reflect changes in authService state
+            }, 100);
+        }
+
+        connectedCallback() {
+            // Добавляем слушатели событий после первого рендеринга в Shadow DOM
+            this.shadowRoot.addEventListener('input', (e) => {
+                if (e.target.id === 'email') this.handleEmailChange(e);
+                if (e.target.id === 'password') this.handlePasswordChange(e);
+            });
+            this.shadowRoot.addEventListener('click', (e) => {
+                if (e.target.id === 'signUpBtn') this.handleSignUp();
+                if (e.target.id === 'signInBtn') this.handleSignIn();
+                if (e.target.id === 'signOutBtn') this.handleSignOut();
+            });
+        }
+
+        handleEmailChange(event) {
+            this.email = event.target.value;
+            this.render();
+        }
+
+        handlePasswordChange(event) {
+            this.password = event.target.value;
+            this.render();
+        }
+
+        async handleSignUp() {
+            await this.authService.signUp(this.email, this.password);
+            this.render(); // Обновляем UI после операции
+        }
+
+        async handleSignIn() {
+            await this.authService.signIn(this.email, this.password);
+            this.render(); // Обновляем UI после операции
+        }
+
+        async handleSignOut() {
+            await this.authService.signOut();
+            this.render(); // Обновляем UI после операции
+        }
+
+        render() {
+            const { currentUser, currentUserId, message, isLoading } = this.authService;
+
+            this.shadowRoot.innerHTML = `
+      <style>
+        @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
+        :host {
+          display: block;
+        }
+        .font-sans {
+          font-family: 'Inter', sans-serif;
+        }
+      </style>
+      <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-400 to-indigo-600 p-4 font-sans">
+        <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md border border-gray-200">
+          <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Аутентификация Firebase (Angular)</h1>
+
+          ${currentUserId ? `
+            <p class="text-sm text-gray-600 text-center mb-4">
+              Ваш ID пользователя: <span class="font-mono bg-gray-100 p-1 rounded break-all">${currentUserId}</span>
+            </p>
+          ` : ''}
+
+          <p class="text-center text-sm mb-6 ${currentUser ? 'text-green-600' : 'text-red-600'}">
+            ${message}
+          </p>
+
+          ${isLoading ? `
+            <div class="flex items-center justify-center">
+              <p class="text-lg font-medium text-gray-700">Загрузка...</p>
+            </div>
+          ` : `
+            ${currentUser ? `
+              <div class="text-center">
+                <p class="text-lg font-semibold text-gray-700 mb-4">
+                  Добро пожаловать, ${currentUser.email || 'Анонимный пользователь'}!
+                </p>
+                <button
+                  id="signOutBtn"
+                  class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                  Выйти
+                </button>
+              </div>
+            ` : `
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200"
+                    placeholder="ваша@почта.com"
+                    value="${this.email}"
+                  />
+                </div>
+                <div>
+                  <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                    Пароль
+                  </label>
+                  <input
+                    type="password"
+                    id="password"
+                    class="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline focus:border-indigo-500 transition duration-200"
+                    placeholder="********"
+                    value="${this.password}"
+                  />
+                </div>
+                <div class="flex flex-col space-y-3">
+                  <button
+                    id="signInBtn"
+                    class="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    Войти
+                  </button>
+                  <button
+                    id="signUpBtn"
+                    class="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105"
+                  >
+                    Зарегистрироваться
+                  </button>
+                </div>
+              </div>
+            `}
+          `}
+        </div>
+      </div>
+    `;
+        }
+    }
+
+    // Регистрируем пользовательский элемент
+    // Это то, что делает наш "Mock Angular App" запускаемым в браузере.
+    customElements.define('app-root', AppComponent);
+</script>

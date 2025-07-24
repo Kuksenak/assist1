@@ -1,0 +1,22 @@
+.container {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 30rem;
+    min-width: 20rem;
+
+    input {
+        width: auto;
+    }
+}
+
+.wrapper {
+    position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}

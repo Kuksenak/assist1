@@ -1,0 +1,194 @@
+/* Переменные для цветов и теней */
+$primary-blue: #1a73e8; // Google Blue
+$light-blue: #e8f0fe; // Light blue for hover/active states
+$text-color-dark: #202124; // Dark text
+$text-color-medium: #5f6368; // Medium text
+$text-color-light: #70757a; // Light text
+$border-color: #dadce0; // Subtle border color
+$background-color: #f8f9fa; // Light background
+
+/* Mixin для теней (Elevation) */
+@mixin mat-elevation($z-index) {
+    @if $z-index ==1 {
+        box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+    }
+
+    @else if $z-index ==2 {
+        box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+    }
+
+    @else if $z-index ==3 {
+        box-shadow: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+    }
+
+    @else if $z-index ==4 {
+        box-shadow: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+    }
+
+    @else {
+        box-shadow: none;
+    }
+}
+
+.mfa-container {
+    font-family: 'Google Sans', 'Roboto', Arial, sans-serif; // Google's preferred fonts
+    padding: 30px;
+    max-width: 680px;
+    margin: 40px auto;
+    background-color: #fff;
+    border-radius: 8px; // Мягкие скругленные углы
+    text-align: center;
+    box-sizing: border-box; // Учитываем padding в размере элемента
+
+    &.mat-elevation-z2 {
+        @include mat-elevation(2);
+    }
+}
+
+.mfa-title {
+    color: $text-color-dark;
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    font-weight: 500; // Medium weight is common in Google's headers
+    line-height: 1.2;
+}
+
+.no-accounts-message {
+    padding: 20px;
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    background-color: $background-color;
+    color: $text-color-medium;
+    font-size: 1em;
+    margin-bottom: 25px;
+
+    p {
+        margin-bottom: 15px;
+    }
+}
+
+.accounts-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; // Пространство между карточками
+}
+
+.account-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    border: 1px solid $border-color; // Еле заметная граница
+    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
+
+    &.mat-elevation-z1 {
+        @include mat-elevation(1);
+    }
+
+    &:hover {
+        @include mat-elevation(2); // Поднимаем карточку при наведении
+        border-color: transparent; // Убираем границу при подъеме
+    }
+
+    .account-info {
+        text-align: left;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        margin-right: 15px;
+
+        .issuer-text {
+            font-weight: 500; // Medium weight for important text
+            color: $text-color-dark;
+            font-size: 1em;
+            margin-bottom: 2px;
+        }
+
+        .name-text {
+            color: $text-color-light;
+            font-size: 0.85em;
+            word-break: break-word; // Перенос длинных имен
+        }
+    }
+
+    .account-code-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        .code-display {
+            font-family: 'Roboto Mono', monospace; // Моноширинный шрифт для кода
+            font-size: 1.3em;
+            font-weight: 500;
+            color: $text-color-dark;
+            letter-spacing: 1.5px;
+            padding: 6px 10px;
+            background-color: $background-color; // Светлый фон для кода
+            border-radius: 4px;
+            border: 1px solid $border-color; // Легкая граница
+            user-select: all; // Позволяет легко выделить код
+        }
+
+        .mfa-button {
+            &.secondary-button {
+                background-color: transparent;
+                color: $primary-blue;
+                border: none;
+                padding: 8px 16px;
+                font-weight: 500;
+                text-transform: uppercase; // Как в Material Design
+                font-size: 0.85em;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+
+                &:hover {
+                    background-color: rgba($primary-blue, 0.08); // Легкое синее свечение
+                }
+
+                &:active {
+                    background-color: rgba($primary-blue, 0.16);
+                }
+            }
+        }
+    }
+}
+
+.mfa-button {
+    // Базовые стили для всех кнопок
+    padding: 10px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: 500;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    letter-spacing: 0.25px; // spacing for uppercase text
+
+    &.primary-button {
+        background-color: $primary-blue;
+        color: white;
+        @include mat-elevation(1); // Легкая тень
+
+        // &:hover {
+        //     background-color: darken($primary-blue, 5%);
+        //     @include mat-elevation(2); // Увеличиваем тень при наведении
+        // }
+
+        // &:active {
+        //     background-color: darken($primary-blue, 10%);
+        //     @include mat-elevation(1);
+        // }
+    }
+
+    &.bottom-button {
+        margin-top: 30px;
+    }
+}

@@ -1,0 +1,44 @@
+<div class="mfa-container mat-elevation-z2">
+    <h2 class="mfa-title">Аккаунты двухфакторной аутентификации</h2>
+
+    <div *ngIf="twoFactorAccounts.length === 0" class="no-accounts-message">
+        <p>Пока нет 2FA аккаунтов. Добавьте первый, чтобы начать.</p>
+        <button class="mfa-button primary-button">Добавить Аккаунт</button>
+    </div>
+
+    <div *ngIf="twoFactorAccounts.length > 0" class="accounts-list">
+        <div class="account-card mat-elevation-z1" *ngFor="let account of twoFactorAccounts">
+            <div class="account-info">
+                <span class="issuer-text">{{ account.issuer }}</span>
+                <span class="name-text">{{ account.name }}</span>
+            </div>
+            <div class="account-code-section">
+                <span class="code-display">{{ account.code }}</span>
+                <button class="mfa-button secondary-button" (click)="refreshCode(account)">Edit</button>
+            </div>
+            <div class="account-code-section">
+                <span class="code-display">{{ account.code }}</span>
+                <button class="mfa-button secondary-button" (click)="refreshCode(account)">EditF</button>
+            </div>
+        </div>
+
+        <app-card *ngFor="let account of twoFactorAccounts">
+            <div class="account-info">
+                <span class="issuer-text">{{ account.issuer }}</span>
+                <span class="name-text">{{ account.name }}</span>
+            </div>
+            <div class="account-code-section">
+                <span class="code-display">{{ account.code }}</span>
+                <button class="mfa-button secondary-button" (click)="refreshCode(account)">Edit</button>
+            </div>
+            <div class="account-code-section">
+                <span class="code-display">{{ account.code }}</span>
+                <button class="mfa-button secondary-button" (click)="refreshCode(account)">EditF</button>
+            </div>
+        </app-card>
+    </div>
+
+    <button *ngIf="twoFactorAccounts.length > 0" class="mfa-button primary-button bottom-button">
+        Добавить Новый Аккаунт
+    </button>
+</div>

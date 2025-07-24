@@ -1,1 +1,69 @@
-/* You can add global styles to this file, and also import other style files */
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #333;
+    background-color: #fafafa;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// input {
+//     // padding: 10px 14px;
+//     height: 2rem;
+//     font-size: 1rem;
+//     border: 1px solid #ccc;
+//     border-radius: 4px;
+//     outline: none;
+//     transition: border-color 0.3s;
+//     // height: 40px;
+// }
+
+
+
+
+input,
+button {
+    font-size: 1rem;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 0.2rem;
+    box-sizing: border-box;
+}
+
+input {
+    outline: none;
+    border: 1px solid #ccc;
+}
+
+input:focus {
+    border-color: rgb(30, 90, 140);
+    // box-shadow: 0 0 2px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 2px rgba(60, 130, 190, 0.5);
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    color: #fff;
+    outline: none;
+    background-color: rgb(60, 130, 190);
+    transition: background-color 0.3s ease;
+}
+
+button:focus-visible {
+    outline: 1px solid rgb(30, 90, 140);
+}
+
+button:hover {
+    background-color: rgb(30, 90, 140);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+    transition: 0.3s ease;
+}
